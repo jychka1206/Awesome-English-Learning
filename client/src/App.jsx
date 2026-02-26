@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 
-const API_BASE = '';
+const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
 const HISTORY_KEY = 'sentence3q_history';
 
 /** 口语转写常用全小写，按句首大写规范显示 */

@@ -43,6 +43,16 @@ npm run dev
 
 注意：API 请求会由电脑上的 Vite 代理到本机后端，所以只要电脑在跑、手机能访问电脑的 5173 端口即可。
 
+### 5. 线上部署（Vercel 一键前后端）
+
+项目已支持在 **Vercel 上同时跑前端和 API**，无需单独部署后端。
+
+1. **Vercel 项目设置**
+   - **Root Directory**：留空（不要填 `client`），用仓库根目录。
+   - **Environment Variables**：添加 **`KIMI_API_KEY`**（你的 Kimi 密钥），或 **`DASHSCOPE_API_KEY`**（通义）。
+2. 推送代码后 Vercel 会自动用根目录的 `vercel.json` 构建：安装依赖 → 构建 `client` → 将 `/api/*` 交给 serverless，其余走前端。
+3. 部署完成后直接打开 Vercel 给的网址即可使用（含手机）。
+
 ## 功能
 
 - **Improve**：输入一句英文（文本或语音），生成 3 道题；每题答完即显示解析；三题都答完揭晓「更地道的表达」。无错误时也会出 3 题（替代表达/地道性），并在解析中说明原表达正确。
