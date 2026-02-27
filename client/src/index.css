@@ -38,7 +38,52 @@ h1 {
 .subtitle {
   color: var(--muted);
   font-size: 0.875rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Language selector */
+.lang-selector {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.lang-selector-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 120px;
+}
+
+.lang-selector-item label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.lang-selector-item select {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.lang-selector-item select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.lang-selector-arrow {
+  font-size: 1rem;
+  color: var(--muted);
+  padding-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .mode-tabs {
@@ -137,6 +182,11 @@ h1 {
 .voice-row button.recording {
   background: var(--wrong);
   color: white;
+}
+
+.voice-row button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .voice-row .voice-hint {

@@ -7,7 +7,10 @@
 ### 1. 环境
 
 - Node 18+
-- 在项目根目录创建 `.env`，填入 `KIMI_API_KEY=你的Kimi密钥`（见 `.env.example`）
+- 在项目根目录创建 `.env`（见 `.env.example`），至少填入：
+  - `OPENROUTER_API_KEY=你的 OpenRouter key`（推荐）
+    - 或使用 `KIMI_API_KEY` / `DASHSCOPE_API_KEY`
+  - `REPLICATE_API_TOKEN=你的Replicate Token`（用于语音转写 `openai/whisper`）
 
 ### 2. 后端
 
@@ -49,7 +52,7 @@ npm run dev
 
 1. **Vercel 项目设置**
    - **Root Directory**：留空（不要填 `client`），用仓库根目录。
-   - **Environment Variables**：添加 **`KIMI_API_KEY`**（你的 Kimi 密钥），或 **`DASHSCOPE_API_KEY`**（通义）。
+   - **Environment Variables**：添加 **`OPENROUTER_API_KEY`**（推荐，或 `KIMI_API_KEY` / `DASHSCOPE_API_KEY`）以及 **`REPLICATE_API_TOKEN`**（语音转写）。
 2. 推送代码后 Vercel 会自动用根目录的 `vercel.json` 构建：安装依赖 → 构建 `client` → 将 `/api/*` 交给 serverless，其余走前端。
 3. 部署完成后直接打开 Vercel 给的网址即可使用（含手机）。
 
@@ -61,11 +64,11 @@ npm run dev
 ## 技术
 
 - 前端：Vite + React，单页，无登录无数据库
-- 后端：Express，代理 Kimi API（Key 不暴露给前端）
-- 语音：浏览器 Web Speech API（英文）；大陆生产环境建议替换为国内 ASR
+- 后端：Express，代理 OpenRouter/Kimi/DashScope（Key 不暴露给前端）
+- 语音：浏览器 `MediaRecorder` + 后端转发 Replicate `openai/whisper`
 
 ## 目录
 
-- `server/`：Express + Kimi 调用（`/api/improve`、`/api/understand`）
+- `server/`：Express + LLM 调用（`/api/improve`、`/api/understand`）+ 语音转写（`/api/transcribe`）
 - `client/`：前端源码
 - `.env`：API Key（勿提交）
