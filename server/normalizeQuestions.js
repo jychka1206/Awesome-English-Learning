@@ -13,9 +13,9 @@ export function normalizeQuestions(list) {
     let options = Array.isArray(q.options) ? q.options.slice(0, 4).map((o) => String(o)) : [];
     for (let j = 0; j < options.length; j++) {
       const prev = options.slice(0, j).indexOf(options[j]);
-      if (prev !== -1) options[j] = '选项' + (j + 1);
+      if (prev !== -1) options[j] = 'Option ' + (j + 1);
     }
-    while (options.length < 4) options.push('选项' + (options.length + 1));
+    while (options.length < 4) options.push('Option ' + (options.length + 1));
     base.options = options.slice(0, 4);
     base.correctIndex = Math.max(0, Math.min(3, parseInt(q.correctIndex, 10) || 0));
     return base;
