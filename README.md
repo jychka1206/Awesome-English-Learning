@@ -1,74 +1,63 @@
 # Awesome English Learning
 
-随手学英语：根据你的**语音随心记**，生成 3 个**语言纠错、润色**小问题，并给出**更地道的最终版本**；另有**长难句理解模式**，输入难句即可做题并查看翻译与结构拆解。
+随手学英语：根据**语音随心记**生成 3 道**纠错与润色**题，并给出**更地道的表达**；支持**长难句理解**，可做题并查看翻译与结构拆解。
 
-## 运行
+---
 
-### 1. 环境
+## 快速开始
 
-- Node 18+
-- 在项目根目录创建 `.env`（见 `.env.example`），至少填入：
-  - `OPENROUTER_API_KEY=你的 OpenRouter key`（推荐）
-    - 或使用 `KIMI_API_KEY` / `DASHSCOPE_API_KEY`
-  - `REPLICATE_API_TOKEN=你的Replicate Token`（用于语音转写 `openai/whisper`）
 
-### 2. 后端
 
-```bash
-cd server
-npm install
-npm run dev
-```
+1. 克隆仓库，在项目根目录创建 `.env`（可参考 `.env.example`），填入大模型 API Key：
+   - 使用 Kimi：`KIMI_API_KEY=你的密钥`
+   - 使用通义：`DASHSCOPE_API_KEY=你的密钥`（与 Kimi 二选一，同时存在时优先通义）
 
-后端默认：http://localhost:3000
+2. 安装依赖并启动：
+   ```bash
+   npm run install:all
+   npm run dev:server   # 终端 1：后端 → http://localhost:3000
+   npm run dev:client  # 终端 2：前端 → http://localhost:5173
+   ```
+   在浏览器打开 http://localhost:5173 即可使用。
 
-### 3. 前端
+---
 
-```bash
-cd client
-npm install
-npm run dev
-```
+## 本地开发
 
-前端默认：http://localhost:5173（已代理 `/api` 到 3000）
+| 目录    | 说明           |
+|---------|----------------|
+| `client/` | 前端（Vite + React） |
+| `server/` | 后端（Node + Express） |
 
-在浏览器打开 http://localhost:5173 即可使用。
+- 前端通过 Vite 代理将 `/api` 请求转发到本机 3000 端口；API 与密钥仅在后端使用，不暴露给浏览器。
+- 大模型调用在服务端完成，支持 Kimi（月之暗面）或阿里云 DashScope（通义/千问）。
 
-### 4. 手机 / 移动端试用
+**手机同网试用**：电脑与手机同一 WiFi 下，先在本机同时运行后端与前端，在前端终端查看 Network 地址（如 `http://192.168.x.x:5173`），在手机浏览器访问该地址即可。
 
-1. **电脑和手机连同一个 WiFi**（不能开访客网络隔离）。
-2. 先在本机**同时**跑好后端和前端：
-   - 终端 1：`cd server` → `npm run dev`
-   - 终端 2：`cd client` → `npm run dev`
-3. 看前端终端里打印的 **Network 地址**，例如：`http://192.168.1.100:5173`
-4. 在手机浏览器里输入这个地址（把 `192.168.1.100` 换成你电脑的局域网 IP）。
-5. 若不知道电脑 IP：Windows 在终端运行 `ipconfig`，看「无线局域网」或「以太网」下的 IPv4；Mac 在「系统设置 → 网络」里看。
+---
 
-注意：API 请求会由电脑上的 Vite 代理到本机后端，所以只要电脑在跑、手机能访问电脑的 5173 端口即可。
+## 线上部署（Vercel）
 
-### 5. 线上部署（Vercel 一键前后端）
+- 将仓库导入 Vercel，**Root Directory** 保持为空（使用仓库根目录）。
+- 在 **Settings → Environment Variables** 中配置 `KIMI_API_KEY` 或 `DASHSCOPE_API_KEY`。
+- 根目录 `vercel.json` 已配置：构建前端、将 `/api/*` 交由 Serverless Functions 处理。保存环境变量后需在 **Deployments** 中重新部署一次使配置生效。
 
-项目已支持在 **Vercel 上同时跑前端和 API**，无需单独部署后端。
+---
 
-1. **Vercel 项目设置**
-   - **Root Directory**：留空（不要填 `client`），用仓库根目录。
-   - **Environment Variables**：添加 **`OPENROUTER_API_KEY`**（推荐，或 `KIMI_API_KEY` / `DASHSCOPE_API_KEY`）以及 **`REPLICATE_API_TOKEN`**（语音转写）。
-2. 推送代码后 Vercel 会自动用根目录的 `vercel.json` 构建：安装依赖 → 构建 `client` → 将 `/api/*` 交给 serverless，其余走前端。
-3. 部署完成后直接打开 Vercel 给的网址即可使用（含手机）。
+## 功能说明
 
-## 功能
 
-- **Improve**：输入一句英文（文本或语音），生成 3 道题；每题答完即显示解析；三题都答完揭晓「更地道的表达」。无错误时也会出 3 题（替代表达/地道性），并在解析中说明原表达正确。
-- **Understand**：输入长难句（仅文本），3 道理解题；答完揭晓中文翻译 + 结构拆解。
 
-## 技术
+---
 
-- 前端：Vite + React，单页，无登录无数据库
-- 后端：Express，代理 OpenRouter/Kimi/DashScope（Key 不暴露给前端）
-- 语音：浏览器 `MediaRecorder` + 后端转发 Replicate `openai/whisper`
+## 技术栈
 
-## 目录
+- **前端**：Vite、React，单页应用，无登录与数据库。
+- **后端**：Express；大模型请求与 API Key 仅在服务端处理。
+- **语音**：浏览器 Web Speech API（英文）；生产环境若需大陆可用，可替换为国内 ASR 服务。
 
-- `server/`：Express + LLM 调用（`/api/improve`、`/api/understand`）+ 语音转写（`/api/transcribe`）
-- `client/`：前端源码
-- `.env`：API Key（勿提交）
+
+
+## 仓库说明
+
+
