@@ -81,7 +81,10 @@ export default function App() {
       // #endregion
       setResult(data);
       if (mode === 'improve') {
-        if (data.cleaned_transcript && typeof data.cleaned_transcript === 'string') setText(data.cleaned_transcript.trim());
+        const hasChinese = /[\u4e00-\u9fff]/.test(sentence);
+        if (!hasChinese && data.cleaned_transcript && typeof data.cleaned_transcript === 'string') {
+          setText(data.cleaned_transcript.trim());
+        }
         addToHistory({ mode: 'improve', original: sentence, better_expression: data.better_expression, translation_zh: data.better_expression_zh });
       }
       if (mode === 'understand') {
