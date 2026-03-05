@@ -68,7 +68,13 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: sentence }),
       });
-      const data = await res.json();
+      const raw = await res.text();
+      let data;
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch (_) {
+        throw new Error(res.ok ? '接口返回格式异常' : `请求失败：${raw.slice(0, 80)}${raw.length > 80 ? '…' : ''}`);
+      }
       if (!res.ok) throw new Error(data.error || res.statusText);
       // #region agent log
       fetch('http://127.0.0.1:7617/ingest/2497e231-7b11-43f6-982f-333ac8264014',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9e6527'},body:JSON.stringify({sessionId:'9e6527',location:'App.jsx:after-fetch',message:'Client received improve data',data:{has_better_expression:!!data.better_expression,has_better_expression_zh:'better_expression_zh' in (data||{}),better_expression_zh_len:(data&&data.better_expression_zh)?data.better_expression_zh.length:0,better_expression_zh_preview:(data&&data.better_expression_zh)?String(data.better_expression_zh).slice(0,80):null},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
@@ -109,7 +115,7 @@ export default function App() {
   return (
     <>
       <h1>Awesome English Learning</h1>
-      <p className="subtitle">From your quick notes to language questions and suggestions. Learn like quick notes—remember by doing.</p>
+      <p className="subtitle">很多人都说，学英语最有效的方法之一，是随时随地用英语“自言自语”。像写随心日记一样大胆开口，没有语境就自己创造语境。这个小工具会通过问题引导、优化后的版本和笔记回忆，帮你把英语练习变成一件顺其自然的事。</p>
 
       <div className="mode-tabs">
         <button
