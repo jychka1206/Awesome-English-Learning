@@ -28,7 +28,7 @@ select {
 
 body {
   margin: 0;
-  font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   color: var(--text);
   line-height: 1.55;
   min-height: 100vh;
@@ -439,7 +439,7 @@ h1 {
 
 .diary-item {
   padding: 0.88rem 0.92rem;
-  margin-bottom: 0.64rem;
+  margin-bottom: 0.9rem;
 }
 
 .diary-time {
@@ -455,22 +455,25 @@ h1 {
 }
 
 .diary-content {
-  margin-top: 0.46rem;
+  margin-top: 0.62rem;
   font-size: 0.89rem;
+  line-height: 1.72;
 }
 
 .diary-original {
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.35rem;
   color: #738f86;
 }
 
 .diary-better {
-  color: #2d9a6e;
+  color: #157a51;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
 }
 
 .diary-zh {
   color: #2f564d;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.48rem;
 }
 
 .diary-structure {
