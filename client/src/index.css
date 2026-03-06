@@ -467,9 +467,15 @@ h1 {
 
 .diary-better {
   color: #224b42;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 1rem;
   margin-bottom: 0.56rem;
+  line-height: 1.5;
+}
+
+.diary-better::before {
+  content: "★ ";
+  color: #ffe066;
 }
 
 .diary-zh {
