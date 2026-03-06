@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #f5fbf8;
   --bg-soft: #eff8f4;
   --surface: #ffffff;
@@ -458,30 +458,33 @@ h1 {
   margin-top: 0.78rem;
   font-size: 0.95rem;
   line-height: 1.82;
+  text-align: justify;
+  text-justify: inter-ideograph;
 }
 
 .diary-original {
   margin-bottom: 0.5rem;
   color: #738f86;
+  font-size: 0.95rem;
 }
 
 .diary-better {
   color: #224b42;
   font-weight: 400;
-  font-size: 1rem;
+  font-size: 0.95rem;
   margin-bottom: 0.56rem;
   line-height: 1.5;
 }
 
 .diary-better::before {
-  content: "★ ";
+  content: "\2605 ";
   color: #ffe066;
 }
 
 .diary-zh {
   color: #224b42;
   margin-bottom: 0.62rem;
-  font-size: 0.96rem;
+  font-size: 0.95rem;
 }
 
 .diary-structure {
@@ -556,3 +559,4 @@ h1 {
     padding: 0.38rem;
   }
 }
+
