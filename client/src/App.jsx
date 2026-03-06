@@ -430,7 +430,7 @@ function DiarySection({ history, onClear }) {
                 {entry.mode === 'improve' ? (
                   <div className="diary-content">
                     <div className="diary-original">{entry.original}</div>
-                    <div className="diary-better">{entry.better_expression || '—'}</div>
+                    <div className="diary-better">→ {entry.better_expression || '—'}</div>
                     {entry.translation_zh && <div className="diary-zh">{entry.translation_zh}</div>}
                   </div>
                 ) : (

@@ -408,103 +408,98 @@ h1 {
 }
 
 .diary-section {
-  margin-top: 2rem;
-  padding-top: 1.2rem;
-  border-top: 1px dashed #d4eadf;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
 }
 
 .diary-toggle {
-  padding: 0.5rem 0.92rem;
-  font-size: 0.88rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .diary-clear {
-  margin-left: 0.6rem;
-  padding: 0.35rem 0.66rem;
-  font-size: 0.79rem;
-  color: #77958b;
+  margin-left: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .diary-clear:hover {
-  border-color: #efb5bb;
-  color: #bb6370;
-  background: #fff4f6;
+  color: var(--wrong);
+  border-color: var(--wrong);
+  background: transparent;
 }
 
 .diary-list {
   list-style: none;
-  margin: 0.88rem 0 0;
+  margin: 1rem 0 0;
   padding: 0;
 }
 
 .diary-item {
-  padding: 0.88rem 0.92rem;
-  margin-bottom: 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: none;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .diary-time {
   display: block;
-  margin-bottom: 0.3rem;
-  color: #86a297;
-  font-size: 0.79rem;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .diary-mode {
-  color: #4ea98f;
-  font-size: 0.74rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
 }
 
 .diary-content {
-  margin-top: 0.78rem;
-  font-size: 0.95rem;
-  line-height: 1.82;
-  text-align: justify;
-  text-justify: inter-ideograph;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .diary-original {
-  margin-bottom: 0.5rem;
-  color: #738f86;
-  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  color: var(--muted);
 }
 
 .diary-better {
-  color: #224b42;
-  font-weight: 400;
-  font-size: 0.95rem;
-  margin-bottom: 0.56rem;
-  line-height: 1.5;
-}
-
-.diary-better::before {
-  content: "\2605 ";
-  color: #ffe066;
+  color: var(--text);
 }
 
 .diary-zh {
-  color: #224b42;
-  margin-bottom: 0.62rem;
-  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.35rem;
 }
 
 .diary-structure {
-  margin: 0.3rem 0 0;
+  margin: 0.35rem 0 0;
   padding: 0;
   list-style: none;
-  color: #6b8a80;
-  font-size: 0.84rem;
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .diary-structure li {
+  padding-left: 1rem;
   position: relative;
-  padding-left: 0.9rem;
 }
 
 .diary-structure li::before {
-  content: "-";
+  content: "•";
   position: absolute;
   left: 0;
-  color: #63c7af;
+  color: var(--accent);
 }
 
 @keyframes fade-up {
