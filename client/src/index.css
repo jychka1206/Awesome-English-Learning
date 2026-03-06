@@ -439,7 +439,7 @@ h1 {
 
 .diary-item {
   padding: 0.88rem 0.92rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: 1.1rem;
 }
 
 .diary-time {
@@ -455,25 +455,27 @@ h1 {
 }
 
 .diary-content {
-  margin-top: 0.62rem;
-  font-size: 0.89rem;
-  line-height: 1.72;
+  margin-top: 0.78rem;
+  font-size: 0.95rem;
+  line-height: 1.82;
 }
 
 .diary-original {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
   color: #738f86;
 }
 
 .diary-better {
-  color: #157a51;
+  color: #224b42;
   font-weight: 700;
-  margin-bottom: 0.35rem;
+  font-size: 1rem;
+  margin-bottom: 0.56rem;
 }
 
 .diary-zh {
-  color: #2f564d;
-  margin-bottom: 0.48rem;
+  color: #224b42;
+  margin-bottom: 0.62rem;
+  font-size: 0.96rem;
 }
 
 .diary-structure {

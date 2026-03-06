@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+﻿import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
 const HISTORY_KEY = 'sentence3q_history';
@@ -430,8 +430,8 @@ function DiarySection({ history, onClear }) {
                 {entry.mode === 'improve' ? (
                   <div className="diary-content">
                     <div className="diary-original">{entry.original}</div>
-                    <div className="diary-better">→ {entry.better_expression || '—'}</div>
-                    {entry.translation_zh && <div className="diary-zh">中文：{entry.translation_zh}</div>}
+                    <div className="diary-better">{entry.better_expression || '—'}</div>
+                    {entry.translation_zh && <div className="diary-zh">{entry.translation_zh}</div>}
                   </div>
                 ) : (
                   <div className="diary-content">
