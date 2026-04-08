@@ -8,14 +8,8 @@
 
 **环境**：Node 18+
 
-1. 克隆仓库，在项目根目录创建 `.env`（可参考 `.env.example`），推荐使用 ENVX（OpenAI 兼容）+ `gpt-4o-mini`：
-   - `ENVX_API_KEY=你的密钥`
-   - `ENVX_BASE_URL=https://envx.build/v1`
-   - `LLM_MODEL=gpt-4o-mini`
-   
-   也可选用：
-   - 使用 Kimi：`KIMI_API_KEY=你的密钥`
-   - 使用通义：`DASHSCOPE_API_KEY=你的密钥`
+1. 克隆仓库，在项目根目录创建 `.env`（可参考 `.env.example`）。
+   - **建议模型**：`gpt-4o-mini`（速度与成本比较均衡）
 
 2. 安装依赖并启动：
    ```bash
@@ -34,9 +28,8 @@
 | `client/` | 前端（Vite + React） |
 | `server/` | 后端（Node + Express） |
 
-- 前端通过 Vite 代理将 `/api` 请求转发到本机 3000 端口；API 与密钥仅在后端使用，不暴露给浏览器。
 - 前端通过 Vite 代理将 `/api` 请求转发到本机 3001 端口；API 与密钥仅在后端使用，不暴露给浏览器。
-- 大模型调用在服务端完成，支持 ENVX（OpenAI 兼容，推荐 `gpt-4o-mini`）、Kimi（月之暗面）或阿里云 DashScope（通义/千问）。
+- 大模型调用在服务端完成，具体配置请参考 `.env.example`。
 
 **手机同网试用**：电脑与手机同一 WiFi 下，先在本机同时运行后端与前端，在前端终端查看 Network 地址（如 `http://192.168.x.x:5173`），在手机浏览器访问该地址即可。
 
@@ -45,12 +38,7 @@
 ## 线上部署（Vercel）
 
 - 将仓库导入 Vercel，**Root Directory** 保持为空（使用仓库根目录）。
-- 在 **Settings → Environment Variables** 中配置（推荐）：
-  - `ENVX_API_KEY`
-  - `ENVX_BASE_URL` = `https://envx.build/v1`
-  - `LLM_MODEL` = `gpt-4o-mini`
-  
-  保存环境变量后需在 **Deployments** 中重新部署一次使配置生效。
+- 在 **Settings → Environment Variables** 中配置服务端所需的环境变量（参考 `.env.example`），保存后在 **Deployments** 中重新部署使配置生效。
 
 ---
 
