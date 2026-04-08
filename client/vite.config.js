@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     host: true, // 局域网可访问，手机可连
     proxy: {
-      '/api': { target: 'http://localhost:3000', changeOrigin: true },
+      '/api': { target: 'http://localhost:3001', changeOrigin: true },
     },
   },
 });
