@@ -4,7 +4,7 @@ import { normalizeQuestions } from './normalizeQuestions.js';
 
 export async function understandHandler(sentence) {
   const LLM = getLLMOptions();
-  if (!LLM.apiKey) throw new Error('API key not configured');
+  if (!LLM.apiKey) throw new Error('API key not configured (set ENVX_API_KEY, or KIMI_API_KEY / DASHSCOPE_API_KEY)');
 
   async function llmJson(systemPrompt, userMessage, maxTokens = 4096) {
     const baseOpts = {
