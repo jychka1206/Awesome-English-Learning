@@ -8,7 +8,7 @@
 
 **环境**：Node 18+
 
-1. 克隆仓库，在项目根目录创建 `.env`（可参考 `.env.example`）。
+1. 克隆仓库，在项目根目录创建 `.env`。
    - **建议模型**：`gpt-4o-mini`（速度与成本比较均衡）
 
 2. 安装依赖并启动：
@@ -29,7 +29,7 @@
 | `server/` | 后端（Node + Express） |
 
 - 前端通过 Vite 代理将 `/api` 请求转发到本机 3001 端口；API 与密钥仅在后端使用，不暴露给浏览器。
-- 大模型调用在服务端完成，具体配置请参考 `.env.example`。
+- 大模型调用在服务端完成；请自行配置环境变量（密钥不要提交到仓库）。
 
 **手机同网试用**：电脑与手机同一 WiFi 下，先在本机同时运行后端与前端，在前端终端查看 Network 地址（如 `http://192.168.x.x:5173`），在手机浏览器访问该地址即可。
 
@@ -38,7 +38,7 @@
 ## 线上部署（Vercel）
 
 - 将仓库导入 Vercel，**Root Directory** 保持为空（使用仓库根目录）。
-- 在 **Settings → Environment Variables** 中配置服务端所需的环境变量（参考 `.env.example`），保存后在 **Deployments** 中重新部署使配置生效。
+- 在 **Settings → Environment Variables** 中配置服务端所需的环境变量，保存后在 **Deployments** 中重新部署使配置生效。
 
 ---
 
@@ -61,4 +61,4 @@
 
 - `server/`：Express 服务与 Improve/Understand 接口实现。
 - `client/`：前端源码。
-- `.env`：本地环境变量（含 API Key），请勿提交至版本库；参考 `.env.example` 配置。
+- `.env`：本地环境变量（含 API Key），请勿提交至版本库。
