@@ -29,9 +29,9 @@ export async function improveHandler(sentence) {
 
   async function translateToZh(english) {
     const content = await chat(LLM.apiKey, [
-      { role: 'system', content: '将用户给出的英文句子翻译成一句中文，只输出这一句中文，不要其他内容。' },
+      { role: 'system', content: '将用户给出的英文完整翻译成中文。要求：逐句翻译，不要总结/改写/省略；保留原有句子数量与标点；只输出翻译后的中文正文，不要添加任何解释或前后缀。' },
       { role: 'user', content: english },
-    ], 256, { chatUrl: LLM.chatUrl, model: LLM.model });
+    ], 768, { chatUrl: LLM.chatUrl, model: LLM.model });
     return (content || '').trim().replace(/^["']|["']$/g, '');
   }
 
