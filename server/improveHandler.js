@@ -7,11 +7,24 @@ export async function improveHandler(sentence) {
   if (!LLM.apiKey) throw new Error('API key not configured (KIMI_API_KEY or DASHSCOPE_API_KEY)');
 
   async function llmJson(systemPrompt, userMessage, maxTokens = 4096) {
-    const content = await chat(LLM.apiKey, [
+    const baseOpts = {
+      chatUrl: LLM.chatUrl,
+      responseFormat: LLM.provider === 'envx' ? { type: 'json_object' } : undefined,
+    };
+    const messages = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userMessage },
-    ], maxTokens, { chatUrl: LLM.chatUrl, model: LLM.model });
-    return parseJsonBlock(content);
+    ];
+    const content = await chat(LLM.apiKey, messages, maxTokens, { ...baseOpts, model: LLM.model });
+    try {
+      return parseJsonBlock(content);
+    } catch (e) {
+      if (LLM.provider === 'envx' && LLM.model && LLM.model !== 'gpt-4o-mini') {
+        const retry = await chat(LLM.apiKey, messages, maxTokens, { ...baseOpts, model: 'gpt-4o-mini' });
+        return parseJsonBlock(retry);
+      }
+      throw e;
+    }
   }
 
   async function translateToZh(english) {
@@ -22,7 +35,7 @@ export async function improveHandler(sentence) {
     return (content || '').trim().replace(/^["']|["']$/g, '');
   }
 
-  const data = await llmJson(IMPROVE_SYSTEM, getImproveUserMessage(sentence), 1536);
+  const data = await llmJson(IMPROVE_SYSTEM, getImproveUserMessage(sentence), 2304);
   const questions = normalizeQuestions(data.questions);
   const better_expression = (
     typeof data.better_expression === 'string' ? data.better_expression

@@ -7,14 +7,27 @@ export async function understandHandler(sentence) {
   if (!LLM.apiKey) throw new Error('API key not configured');
 
   async function llmJson(systemPrompt, userMessage, maxTokens = 4096) {
-    const content = await chat(LLM.apiKey, [
+    const baseOpts = {
+      chatUrl: LLM.chatUrl,
+      responseFormat: LLM.provider === 'envx' ? { type: 'json_object' } : undefined,
+    };
+    const messages = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userMessage },
-    ], maxTokens, { chatUrl: LLM.chatUrl, model: LLM.model });
-    return parseJsonBlock(content);
+    ];
+    const content = await chat(LLM.apiKey, messages, maxTokens, { ...baseOpts, model: LLM.model });
+    try {
+      return parseJsonBlock(content);
+    } catch (e) {
+      if (LLM.provider === 'envx' && LLM.model && LLM.model !== 'gpt-4o-mini') {
+        const retry = await chat(LLM.apiKey, messages, maxTokens, { ...baseOpts, model: 'gpt-4o-mini' });
+        return parseJsonBlock(retry);
+      }
+      throw e;
+    }
   }
 
-  const data = await llmJson(UNDERSTAND_SYSTEM, getUnderstandUserMessage(sentence), 1536);
+  const data = await llmJson(UNDERSTAND_SYSTEM, getUnderstandUserMessage(sentence), 2304);
   const questions = normalizeQuestions(data.questions);
   const zh_translation = typeof data.zh_translation === 'string' ? data.zh_translation.trim() : '';
   const structure_breakdown = Array.isArray(data.structure_breakdown)
