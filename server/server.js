@@ -12,7 +12,9 @@ app.use(express.json());
 
 const LLM = getLLMOptions();
 if (!LLM.apiKey) {
-  console.warn('Warning: No LLM API key. Set KIMI_API_KEY or DASHSCOPE_API_KEY in .env.');
+  console.warn('Warning: No LLM API key. Set ENVX_API_KEY (recommended), or KIMI_API_KEY / DASHSCOPE_API_KEY in .env.');
+} else {
+  console.log(`LLM provider=${LLM.provider || 'unknown'} model=${LLM.model || 'unknown'}`);
 }
 
 app.post('/api/improve', async (req, res) => {

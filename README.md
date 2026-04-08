@@ -8,14 +8,19 @@
 
 **环境**：Node 18+
 
-1. 克隆仓库，在项目根目录创建 `.env`（可参考 `.env.example`），填入大模型 API Key：
+1. 克隆仓库，在项目根目录创建 `.env`（可参考 `.env.example`），推荐使用 ENVX（OpenAI 兼容）+ `gpt-4o-mini`：
+   - `ENVX_API_KEY=你的密钥`
+   - `ENVX_BASE_URL=https://envx.build/v1`
+   - `LLM_MODEL=gpt-4o-mini`
+   
+   也可选用：
    - 使用 Kimi：`KIMI_API_KEY=你的密钥`
-   - 使用通义：`DASHSCOPE_API_KEY=你的密钥`（与 Kimi 二选一，同时存在时优先通义）
+   - 使用通义：`DASHSCOPE_API_KEY=你的密钥`
 
 2. 安装依赖并启动：
    ```bash
    npm run install:all
-   npm run dev:server   # 终端 1：后端 → http://localhost:3000
+   npm run dev:server   # 终端 1：后端 → http://localhost:3001
    npm run dev:client  # 终端 2：前端 → http://localhost:5173
    ```
    在浏览器打开 http://localhost:5173 即可使用。
@@ -30,7 +35,8 @@
 | `server/` | 后端（Node + Express） |
 
 - 前端通过 Vite 代理将 `/api` 请求转发到本机 3000 端口；API 与密钥仅在后端使用，不暴露给浏览器。
-- 大模型调用在服务端完成，支持 Kimi（月之暗面）或阿里云 DashScope（通义/千问）。
+- 前端通过 Vite 代理将 `/api` 请求转发到本机 3001 端口；API 与密钥仅在后端使用，不暴露给浏览器。
+- 大模型调用在服务端完成，支持 ENVX（OpenAI 兼容，推荐 `gpt-4o-mini`）、Kimi（月之暗面）或阿里云 DashScope（通义/千问）。
 
 **手机同网试用**：电脑与手机同一 WiFi 下，先在本机同时运行后端与前端，在前端终端查看 Network 地址（如 `http://192.168.x.x:5173`），在手机浏览器访问该地址即可。
 
@@ -39,8 +45,12 @@
 ## 线上部署（Vercel）
 
 - 将仓库导入 Vercel，**Root Directory** 保持为空（使用仓库根目录）。
-- 在 **Settings → Environment Variables** 中配置 `KIMI_API_KEY` 或 `DASHSCOPE_API_KEY`。
-- 根目录 `vercel.json` 已配置：构建前端、将 `/api/*` 交由 Serverless Functions 处理。保存环境变量后需在 **Deployments** 中重新部署一次使配置生效。
+- 在 **Settings → Environment Variables** 中配置（推荐）：
+  - `ENVX_API_KEY`
+  - `ENVX_BASE_URL` = `https://envx.build/v1`
+  - `LLM_MODEL` = `gpt-4o-mini`
+  
+  保存环境变量后需在 **Deployments** 中重新部署一次使配置生效。
 
 ---
 
