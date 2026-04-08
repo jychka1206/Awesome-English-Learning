@@ -17,9 +17,10 @@ export default async function handler(req, res) {
   const text = typeof body.text === 'string' ? body.text : '';
   const sentence = text.trim();
   if (!sentence) return sendJson(res, 400, { error: 'Missing or empty "text"' });
+  const envx = (process.env.ENVX_API_KEY || process.env.OPENAI_API_KEY || '').trim();
   const kimi = (process.env.KIMI_API_KEY || '').trim();
   const dash = (process.env.DASHSCOPE_API_KEY || '').trim();
-  if (!kimi && !dash) return sendJson(res, 500, { error: '请在 Vercel 项目 Settings → Environment Variables 中配置 KIMI_API_KEY（或 DASHSCOPE_API_KEY），保存后点 Deployments → Redeploy。' });
+  if (!envx && !kimi && !dash) return sendJson(res, 500, { error: 'Missing API key. Please configure ENVX_API_KEY (recommended) or another supported provider key in environment variables, then redeploy.' });
   try {
     const { understandHandler } = await import('../server/understandHandler.js');
     const payload = await understandHandler(sentence);
