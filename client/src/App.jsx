@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
 const HISTORY_KEY = 'sentence3q_history';
@@ -45,6 +45,7 @@ export default function App() {
   const [userAnswers, setUserAnswers] = useState({});
   const [fillInputs, setFillInputs] = useState({});
   const [history, setHistory] = useState(() => loadHistoryFromStorage());
+  const textareaId = 'sentence-input';
 
   useEffect(() => {
     saveHistoryToStorage(history);
@@ -117,12 +118,18 @@ export default function App() {
 
   return (
     <>
-      <h1>Awesome English Learning</h1>
-      <p className="subtitle">很多人都说，学英语最有效的方法之一，是随时随地用英语“自言自语”。像写随心日记一样大胆开口，没有语境就自己创造语境。这个小工具会通过问题引导、优化后的版本和笔记回忆，帮你把英语练习变成一件顺其自然的事。</p>
+      <header className="app-header">
+        <h1>Awesome English Learning</h1>
+        <p className="subtitle">
+          很多人都说，学英语最有效的方法之一，是随时随地用英语“自言自语”。像写随心日记一样大胆开口，没有语境就自己创造语境。这个小工具会通过问题引导、优化后的版本和笔记回忆，帮你把英语练习变成一件顺其自然的事。
+        </p>
+      </header>
 
-      <div className="mode-tabs">
+      <div className="mode-tabs" role="tablist" aria-label="练习模式">
         <button
           type="button"
+          role="tab"
+          aria-selected={mode === 'improve'}
           className={mode === 'improve' ? 'active' : ''}
           onClick={() => { setMode('improve'); setResult(null); setError(''); }}
         >
@@ -130,6 +137,8 @@ export default function App() {
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={mode === 'understand'}
           className={mode === 'understand' ? 'active' : ''}
           onClick={() => { setMode('understand'); setResult(null); setError(''); }}
         >
@@ -137,14 +146,16 @@ export default function App() {
         </button>
       </div>
 
-      <div className="input-section">
-        <label>
+      <main className="app-main">
+        <div className="input-section" role="region" aria-label="输入">
+        <label htmlFor={textareaId}>
           {mode === 'improve' ? '大胆输入或说出英语吧（不会的单词和表达可以用中文）' : '输入长难句（仅文本）'}
         </label>
         <textarea
+          id={textareaId}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={mode === 'improve' ? 'e.g. I have went there yesterday.' : 'e.g. That the plates are moving is now beyond dispute.'}
+          placeholder={mode === 'improve' ? 'e.g. Yesterday I have went to the new cafe with my friend; we was talking about how to 减压 after the exam, and I feel my English still sound a little strange.' : 'e.g. That the plates are moving is now beyond dispute.'}
           disabled={loading}
         />
         {mode === 'improve' && (
@@ -155,44 +166,45 @@ export default function App() {
         <button type="button" className="submit-btn" onClick={submit} disabled={loading}>
           {loading ? '出题中…' : '生成问题'}
         </button>
-      </div>
+        </div>
 
-      {error && <div className="error-msg">{error}</div>}
+        {error && <div className="error-msg" role="alert">{error}</div>}
 
-      {loading && <div className="loading">正在生成题目…</div>}
+        {loading && <div className="loading" role="status" aria-live="polite">正在生成题目…</div>}
 
-      {result && !loading && Array.isArray(result.questions) && result.questions.length > 0 && (
-        <>
-          {mode === 'improve' && result.highlighted_sentence && (
-            <div className="highlighted-sentence-wrap">
-              <span className="highlighted-sentence-label">原句（高亮处为有问题部分）：</span>
-              <div className="highlighted-sentence">
-                <HighlightedText text={result.highlighted_sentence} />
-              </div>
-            </div>
-          )}
-          <Questions
+        {result && !loading && Array.isArray(result.questions) && result.questions.length > 0 && (
+          <>
+            {mode === 'improve' && result.highlighted_sentence && (
+              <section className="highlighted-sentence-wrap" aria-label="原句高亮">
+                <span className="highlighted-sentence-label">原句（高亮处为有问题部分）：</span>
+                <div className="highlighted-sentence">
+                  <HighlightedText text={result.highlighted_sentence} />
+                </div>
+              </section>
+            )}
+            <Questions
+              mode={mode}
+              questions={result.questions}
+              userAnswers={userAnswers}
+              fillInputs={fillInputs}
+              setFillInputs={setFillInputs}
+              setAnswer={setAnswer}
+            />
+          </>
+        )}
+
+        {result && allAnswered && (
+          <Reveal
             mode={mode}
-            questions={result.questions}
-            userAnswers={userAnswers}
-            fillInputs={fillInputs}
-            setFillInputs={setFillInputs}
-            setAnswer={setAnswer}
+            result={result}
+            setResult={setResult}
+            originalText={text}
+            onReset={reset}
           />
-        </>
-      )}
+        )}
 
-      {result && allAnswered && (
-        <Reveal
-          mode={mode}
-          result={result}
-          setResult={setResult}
-          originalText={text}
-          onReset={reset}
-        />
-      )}
-
-      <DiarySection history={history} onClear={() => setHistory([])} />
+        <DiarySection history={history} onClear={() => setHistory([])} />
+      </main>
     </>
   );
 }
@@ -252,9 +264,10 @@ function VoiceInput({ onResult, disabled }) {
       type="button"
       className={recording ? 'recording' : ''}
       disabled={disabled}
+      aria-pressed={recording}
       onClick={handleClick}
     >
-      {recording ? '点击结束' : '点击飙英语'}
+      {recording ? '点击结束' : '点击录音'}
     </button>
   );
 }

@@ -1,6 +1,7 @@
 {
   "name": "sentence-3-questions",
   "private": true,
+  "type": "module",
   "description": "一句英语，三道题。前端与后端需分别启动。",
   "scripts": {
     "dev:server": "npm run dev --prefix server",
