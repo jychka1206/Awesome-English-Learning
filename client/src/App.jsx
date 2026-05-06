@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 
 const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
 const HISTORY_KEY = 'sentence3q_history';
@@ -46,12 +46,15 @@ export default function App() {
   const [fillInputs, setFillInputs] = useState({});
   const [history, setHistory] = useState(() => loadHistoryFromStorage());
   const textareaId = 'sentence-input';
+  const voiceRef = useRef(null);
 
   useEffect(() => {
     saveHistoryToStorage(history);
   }, [history]);
 
   const submit = useCallback(async () => {
+    // 如果正在录音，提交前自动结束录音，避免影响其它操作
+    voiceRef.current?.stop?.();
     const sentence = text.trim();
     if (!sentence) {
       setError('请输入或说出一句英文');
@@ -131,7 +134,7 @@ export default function App() {
           role="tab"
           aria-selected={mode === 'improve'}
           className={mode === 'improve' ? 'active' : ''}
-          onClick={() => { setMode('improve'); setResult(null); setError(''); }}
+          onClick={() => { voiceRef.current?.stop?.(); setMode('improve'); setResult(null); setError(''); }}
         >
           从随心记开始
         </button>
@@ -140,7 +143,7 @@ export default function App() {
           role="tab"
           aria-selected={mode === 'understand'}
           className={mode === 'understand' ? 'active' : ''}
-          onClick={() => { setMode('understand'); setResult(null); setError(''); }}
+          onClick={() => { voiceRef.current?.stop?.(); setMode('understand'); setResult(null); setError(''); }}
         >
           从长难句开始
         </button>
@@ -160,7 +163,7 @@ export default function App() {
         />
         {mode === 'improve' && (
           <div className="voice-row">
-            <VoiceInput onResult={setText} disabled={loading} />
+            <VoiceInput ref={voiceRef} onResult={setText} disabled={loading} />
           </div>
         )}
         <button type="button" className="submit-btn" onClick={submit} disabled={loading}>
@@ -209,22 +212,70 @@ export default function App() {
   );
 }
 
-function VoiceInput({ onResult, disabled }) {
+/** 一些国产浏览器（夸克 / 华为 / UC / QQ / 小米 / vivo / OPPO 等）即便暴露了
+ *  webkitSpeechRecognition，底层也常常无法工作（依赖 Google 语音或干脆是空实现）。
+ *  这里仅做"软提示"：仍允许用户尝试，失败时给出明确原因。 */
+function detectKnownProblemBrowser() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /(Quark|Huawei|HuaweiBrowser|HWBrowser|UCBrowser|MiuiBrowser|XiaoMi|QQBrowser|MQQBrowser|VivoBrowser|HeyTapBrowser|OppoBrowser|baiduboxapp|baidubrowser)/i.test(ua);
+}
+
+const VoiceInput = forwardRef(function VoiceInput({ onResult, disabled }, ref) {
   const [recording, setRecording] = useState(false);
   const [supported, setSupported] = useState(true);
+  const [hint, setHint] = useState(() => (detectKnownProblemBrowser()
+    ? '当前浏览器对英文语音识别支持不稳定，建议使用 Chrome / Edge / Safari，或直接打字输入'
+    : ''));
   const recRef = useRef(null);
+  const startingRef = useRef(false);
+
+  const cleanup = useCallback(() => {
+    const rec = recRef.current;
+    recRef.current = null;
+    if (rec) {
+      rec.onresult = null;
+      rec.onend = null;
+      rec.onerror = null;
+      try { rec.abort(); } catch (_) {}
+      try { rec.stop(); } catch (_) {}
+    }
+    startingRef.current = false;
+  }, []);
+
+  const stop = useCallback(() => {
+    cleanup();
+    setRecording(false);
+  }, [cleanup]);
+
+  useImperativeHandle(ref, () => ({ stop }), [stop]);
+
+  // 组件卸载时务必释放，避免麦克风一直占用
+  useEffect(() => () => { cleanup(); }, [cleanup]);
 
   const start = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    if (startingRef.current) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
       setSupported(false);
       return;
     }
-    onResult(''); // 开始录音时清空输入框，避免和上一次内容混在一起
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const rec = new SpeechRecognition();
+
+    cleanup();
+    setHint('');
+    onResult('');
+
+    let rec;
+    try {
+      rec = new SR();
+    } catch (_) {
+      setHint('当前浏览器无法启动语音识别，请改用 Chrome / Edge / Safari，或直接打字');
+      return;
+    }
     rec.lang = 'en-US';
     rec.continuous = true;
-    rec.interimResults = true; // 一边说一边出字
+    rec.interimResults = true;
+
     rec.onresult = (e) => {
       let full = '';
       for (let i = 0; i < e.results.length; i++) {
@@ -235,19 +286,49 @@ function VoiceInput({ onResult, disabled }) {
       full = removeFillers(full.trim()).replace(/\s*\.\s*\./g, '.').replace(/\s+$/, '').trim();
       onResult(sentenceCase(full));
     };
-    rec.onend = () => setRecording(false);
-    rec.onerror = () => setRecording(false);
-    recRef.current = rec;
-    rec.start();
-    setRecording(true);
-  };
+    rec.onend = () => {
+      if (recRef.current === rec) {
+        recRef.current = null;
+        startingRef.current = false;
+        setRecording(false);
+      }
+    };
+    rec.onerror = (ev) => {
+      const code = ev && ev.error;
+      let msg = '';
+      if (code === 'not-allowed' || code === 'service-not-allowed') {
+        msg = '麦克风权限被拒绝，请在浏览器设置里允许麦克风后再试';
+      } else if (code === 'no-speech') {
+        msg = '没听到声音，请靠近麦克风再试一次';
+      } else if (code === 'audio-capture') {
+        msg = '没有可用的麦克风设备';
+      } else if (code === 'network') {
+        msg = '当前浏览器的语音识别需要联网（部分国产浏览器无法访问），建议改用 Chrome / Edge / Safari，或直接打字';
+      } else if (code === 'aborted') {
+        msg = '';
+      } else if (code) {
+        msg = '语音识别失败：' + code;
+      }
+      if (msg) setHint(msg);
+      if (recRef.current === rec) {
+        recRef.current = null;
+        startingRef.current = false;
+        setRecording(false);
+      }
+    };
 
-  const stop = () => {
-    if (recRef.current) {
-      try { recRef.current.stop(); } catch (_) {}
+    recRef.current = rec;
+    startingRef.current = true;
+    try {
+      rec.start();
+      setRecording(true);
+    } catch (err) {
+      // 常见：InvalidStateError —— 上一次会话尚未完全释放
       recRef.current = null;
+      startingRef.current = false;
+      setRecording(false);
+      setHint('启动语音识别失败，请稍后再试，或换 Chrome / Edge / Safari');
     }
-    setRecording(false);
   };
 
   const handleClick = (e) => {
@@ -257,20 +338,25 @@ function VoiceInput({ onResult, disabled }) {
     else start();
   };
 
-  if (!supported) return <span className="voice-hint">当前浏览器不支持语音识别，请用文本输入</span>;
+  if (!supported) {
+    return <span className="voice-hint">当前浏览器不支持语音识别，请直接输入，或改用 Chrome / Edge / Safari</span>;
+  }
 
   return (
-    <button
-      type="button"
-      className={recording ? 'recording' : ''}
-      disabled={disabled}
-      aria-pressed={recording}
-      onClick={handleClick}
-    >
-      {recording ? '点击结束' : '点击录音'}
-    </button>
+    <>
+      <button
+        type="button"
+        className={recording ? 'recording' : ''}
+        disabled={disabled}
+        aria-pressed={recording}
+        onClick={handleClick}
+      >
+        {recording ? '点击结束' : '点击录音'}
+      </button>
+      {hint && <span className="voice-hint" role="status">{hint}</span>}
+    </>
   );
-}
+});
 
 /** 把 **错误部分** 渲染成高亮 */
 function HighlightedText({ text }) {
