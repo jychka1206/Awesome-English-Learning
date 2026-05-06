@@ -229,19 +229,31 @@ const VoiceInput = forwardRef(function VoiceInput({ onResult, disabled }, ref) {
     : ''));
   const recRef = useRef(null);
   const startingRef = useRef(false);
+  const watchdogRef = useRef(null);
+
+  const clearWatchdog = useCallback(() => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+  }, []);
 
   const cleanup = useCallback(() => {
+    clearWatchdog();
     const rec = recRef.current;
     recRef.current = null;
     if (rec) {
       rec.onresult = null;
       rec.onend = null;
       rec.onerror = null;
+      rec.onaudiostart = null;
+      rec.onsoundstart = null;
+      rec.onspeechstart = null;
       try { rec.abort(); } catch (_) {}
       try { rec.stop(); } catch (_) {}
     }
     startingRef.current = false;
-  }, []);
+  }, [clearWatchdog]);
 
   const stop = useCallback(() => {
     cleanup();
@@ -276,7 +288,14 @@ const VoiceInput = forwardRef(function VoiceInput({ onResult, disabled }, ref) {
     rec.continuous = true;
     rec.interimResults = true;
 
+    // 标记引擎已"真正开始工作"，关闭看门狗
+    const markAlive = () => clearWatchdog();
+    rec.onaudiostart = markAlive;
+    rec.onsoundstart = markAlive;
+    rec.onspeechstart = markAlive;
+
     rec.onresult = (e) => {
+      clearWatchdog();
       let full = '';
       for (let i = 0; i < e.results.length; i++) {
         const transcript = e.results[i][0].transcript;
@@ -287,6 +306,7 @@ const VoiceInput = forwardRef(function VoiceInput({ onResult, disabled }, ref) {
       onResult(sentenceCase(full));
     };
     rec.onend = () => {
+      clearWatchdog();
       if (recRef.current === rec) {
         recRef.current = null;
         startingRef.current = false;
@@ -294,6 +314,7 @@ const VoiceInput = forwardRef(function VoiceInput({ onResult, disabled }, ref) {
       }
     };
     rec.onerror = (ev) => {
+      clearWatchdog();
       const code = ev && ev.error;
       let msg = '';
       if (code === 'not-allowed' || code === 'service-not-allowed') {
@@ -322,6 +343,16 @@ const VoiceInput = forwardRef(function VoiceInput({ onResult, disabled }, ref) {
     try {
       rec.start();
       setRecording(true);
+      // 看门狗：5 秒内若没有任何"真在录"的信号（audiostart/soundstart/speechstart/result），
+      // 判定为"无声失败"——常见于小米 / 华为 / 夸克 等浏览器：start() 不报错但底层并未真正打开麦克风
+      clearWatchdog();
+      watchdogRef.current = setTimeout(() => {
+        if (recRef.current === rec) {
+          setHint('当前浏览器没有真正打开麦克风（已自动停止）。请在系统/浏览器设置里允许麦克风权限，或改用 Chrome / Edge / Safari，或直接打字输入');
+          cleanup();
+          setRecording(false);
+        }
+      }, 5000);
     } catch (err) {
       // 常见：InvalidStateError —— 上一次会话尚未完全释放
       recRef.current = null;
